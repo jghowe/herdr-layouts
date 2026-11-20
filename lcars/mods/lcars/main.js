@@ -4,7 +4,7 @@
 // Right-clicks open Herdr's own menu mod, so rename, close, split and worktrees work as in its other layouts.
 import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { spaces, agents, machines, run, props, setAgentOrder, window, openOverlay, closeOverlay, exec, home } from "herdr";
+import { spaces, agents, machines, run, props, setAgentOrder, window, openOverlay, closeOverlay, exec, home, layout, shared } from "herdr";
 import * as fs from "fs/promises";
 
 const C = {
@@ -17,6 +17,17 @@ const WORD = { working: "WORKING", blocked: "NEEDS YOU", done: "DONE", idle: "ST
 const SIDE = 210; // the sidebar's width, which the elbows match
 const ARM = 20; // the thickness of the horizontal arms
 const GAP = 4; // black between LCARS blocks
+
+// the side panel (layout node "panel", its stack "panel-body"): Herdr's Artifacts add-on can be switched off
+const addonOn = (id) => !((Array.isArray(shared("addons.off")) ? shared("addons.off") : []).includes(id));
+const find = (node, id) => {
+  if (node?.id === id) return node;
+  for (const child of node?.children ?? []) {
+    const hit = find(child, id);
+    if (hit) return hit;
+  }
+  return null;
+};
 
 const up = (s) => String(s ?? "").toUpperCase();
 const two = (n) => String(n).padStart(2, "0");
@@ -87,6 +98,37 @@ export default class Lcars extends View {
       this.poll(cx);
       cx.timer.every(POLL, (cx) => this.poll(cx));
     }
+    if (part === "tabs") {
+      try { this.panels = JSON.parse(localStorage.getItem("panels") ?? "{}"); } catch { this.panels = {}; }
+      if (!this.panels || typeof this.panels !== "object" || Array.isArray(this.panels)) this.panels = {};
+    }
+  }
+
+  // The side panel is remembered per space: switching spaces shows that space's choice (as Herdr's own tab bar does).
+  syncPanel(space, panel, body, enabled) {
+    if (!space || !panel) return;
+    const now = panel.hidden ? null : body?.active ?? null;
+    if (space.id !== this.space) {
+      const first = this.space === undefined;
+      this.space = space.id; this.pending = null;
+      if (!(first && !(space.id in this.panels))) {
+        const stored = this.panels[space.id] ?? null;
+        const want = enabled.includes(stored) ? stored : null;
+        if (want !== now) {
+          this.pending = { want, until: Date.now() + 1000 };
+          if (want) { run("layout.select", { stack: "panel-body", child: want }); run("layout.show", { id: "panel" }); }
+          else run("layout.hide", { id: "panel" });
+          return;
+        }
+      }
+    }
+    if (this.pending) {
+      if (this.pending.want !== now && Date.now() < this.pending.until) return;
+      this.pending = null;
+    }
+    if (this.panels[space.id] === now) return;
+    this.panels[space.id] = now;
+    localStorage.setItem("panels", JSON.stringify(this.panels));
   }
 
   poll(cx) {
@@ -229,9 +271,30 @@ export default class Lcars extends View {
         .on_mouse_down("right", onRight(() => menu("tab", { id: t.id, space: space.id })))
         .child(`${two(t.index)} ${up(t.name)}`);
     };
+    // the side panel's buttons: Files, Changes, Tasks and Artifacts, each shows its panel or hides it again
+    const root = layout(), panel = find(root, "panel"), body = find(root, "panel-body");
+    const enabled = [...(shared("workspace.panels") ?? ["files", "changes"]), "tasks", ...(addonOn("artifacts") ? ["artifacts"] : [])];
+    this.syncPanel(space, panel, body, enabled);
+    const panelBtn = (id, label) => {
+      const on = panel && !panel.hidden && body?.active === id;
+      return h_flex().id(`panel-${id}`).h_full().flex_none().px(12).rounded(15).bg(on ? C.orange : C.gray).items_center()
+        .text_color(C.black).text_size(12).font_weight(700).cursor_pointer()
+        .hover((st) => st.opacity(0.85))
+        .on_click(() => {
+          if (on) run("layout.hide", { id: "panel" });
+          else { run("layout.select", { stack: "panel-body", child: id }); run("layout.show", { id: "panel" }); }
+        })
+        .child(up(label));
+    };
     return h_flex().id("tab-bar").size_full().gap(GAP + 2).items_center().overflow_x_scrollbar()
       .on_mouse_down("right", onRight(globalMenu))
-      .children((space?.tabs ?? []).filter((t) => !t.settled).map(pill))
+      .child(h_flex().flex_1().min_w(0).h_full().gap(GAP + 2).items_center().overflow_x_scrollbar()
+        .children((space?.tabs ?? []).filter((t) => !t.settled).map(pill)))
+      .child(h_flex().id("panel-toggles").h_full().flex_none().gap(GAP + 2).items_center().pl(4)
+        .when(enabled.includes("files"), (el) => el.child(panelBtn("files", "FILES")))
+        .when(enabled.includes("changes"), (el) => el.child(panelBtn("changes", "CHANGES")))
+        .child(panelBtn("tasks", "TASKS"))
+        .when(enabled.includes("artifacts"), (el) => el.child(panelBtn("artifacts", "ARTIFACTS"))))
       .child(h_flex().id("tab-new").h_full().flex_none().px(14).rounded(15).bg(C.gray).items_center()
         .text_color(C.black).text_size(22).font_weight(700).cursor_pointer().hover((st) => st.bg(C.violet))
         .on_click(() => newMenu()).on_mouse_down("right", onRight(newMenu)).child("+"));
