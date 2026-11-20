@@ -162,7 +162,7 @@ export default class Lcars extends View {
     };
     const member = (a) => h_flex().id(`agent-${a.address}`).w_full().h(40).flex_none().gap(6).items_center()
       .cursor_pointer().hover((st) => st.opacity(0.85))
-      .on_click(() => run("agent.focus", { terminal: a.address }))
+      .on_click(() => (a.pane ? run("pane.focus", { pane: a.pane }) : run("terminal.peek", { terminal: a.address })))
       .on_mouse_down("right", onRight(() => menu("pane", { pane: a.pane, terminal: a.address })))
       .child(div().w(14).h_full().bg(STATUS[a.status] ?? C.gray).rounded_l(15)
         .when(a.status === "blocked", (el) => el.loop("opacity", { from: 0.4, to: 1, period: 700 })))

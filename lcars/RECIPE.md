@@ -53,7 +53,7 @@ Each agent status shows the same colour in the crew strip, the tab pill and the 
 
 **Clicks:**
 - A space slab: `space.select {id}`.
-- A crew row: `agent.focus {terminal}`.
+- A crew row: `pane.focus {pane}`, which shows the agent's tab even in another space; an agent without a pane is `terminal.peek {terminal}`. (`agent.focus` only works in a layout with an `{ "agent": "focused" }` block.)
 - A tab pill: `tab.select {id}`.
 - `+ NEW SPACE`: with no other machines, `space.new` here. With machines added (`hc machine add`), a popup of LCARS slabs, `NEW SPACE ON` then `THIS COMPUTER` and one per machine. Picking one runs `space.new {machine}`. A machine that isn't ready shows grey with its state and can't be picked.
 - `+` after the tabs: Herdr's new menu (terminal, each installed agent, new space, new worktree, open worktree).
