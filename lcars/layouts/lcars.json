@@ -108,25 +108,206 @@
               }
             },
             {
-              "id": "main",
-              "type": "block",
-              "content": {
-                "tab": "active",
-                "pane": {
-                  "gap": 8,
-                  "radius": 10,
-                  "background": "#000000",
-                  "border": {
-                    "width": 2,
-                    "color": "#666688"
+              "id": "work-body",
+              "type": "row",
+              "padding": 8,
+              "gap": 8,
+              "children": [
+                {
+                  "id": "main",
+                  "type": "block",
+                  "content": {
+                    "tab": "active",
+                    "pane": {
+                      "gap": 8,
+                      "radius": 10,
+                      "background": "#000000",
+                      "border": {
+                        "width": 2,
+                        "color": "#666688"
+                      },
+                      "focus": {
+                        "width": 2,
+                        "color": "#ff9900"
+                      },
+                      "lone": true
+                    }
+                  }
+                },
+                {
+                  "id": "panel",
+                  "type": "column",
+                  "hidden": true,
+                  "size": {
+                    "px": 368
                   },
-                  "focus": {
-                    "width": 2,
-                    "color": "#ff9900"
-                  },
-                  "lone": true
+                  "min": 280,
+                  "max": 900,
+                  "children": [
+                    {
+                      "id": "panel-body",
+                      "type": "stack",
+                      "active": "files",
+                      "children": [
+                        {
+                          "id": "files",
+                          "type": "block",
+                          "content": {
+                            "mod": "files"
+                          }
+                        },
+                        {
+                          "id": "changes",
+                          "type": "block",
+                          "content": {
+                            "mod": "changes"
+                          }
+                        },
+                        {
+                          "id": "tasks",
+                          "type": "stack",
+                          "active": "tasks-list",
+                          "children": [
+                            {
+                              "id": "tasks-list",
+                              "type": "block",
+                              "content": {
+                                "mod": "tasks"
+                              }
+                            },
+                            {
+                              "id": "tasks-thread",
+                              "type": "column",
+                              "children": [
+                                {
+                                  "id": "tasks-thread-head",
+                                  "type": "block",
+                                  "content": {
+                                    "mod": "chat",
+                                    "props": {
+                                      "panel": true,
+                                      "head": true
+                                    }
+                                  },
+                                  "size": {
+                                    "px": 127
+                                  }
+                                },
+                                {
+                                  "id": "tasks-thread-body",
+                                  "type": "stack",
+                                  "active": "tasks-thread-chat",
+                                  "children": [
+                                    {
+                                      "id": "tasks-thread-chat",
+                                      "type": "block",
+                                      "content": {
+                                        "mod": "chat",
+                                        "props": {
+                                          "panel": true
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "id": "tasks-thread-files",
+                                      "type": "block",
+                                      "content": {
+                                        "mod": "task-files"
+                                      }
+                                    },
+                                    {
+                                      "id": "tasks-thread-changes",
+                                      "type": "block",
+                                      "content": {
+                                        "mod": "task-changes"
+                                      }
+                                    },
+                                    {
+                                      "id": "tasks-thread-pr",
+                                      "type": "block",
+                                      "content": {
+                                        "mod": "task-pr"
+                                      }
+                                    },
+                                    {
+                                      "id": "tasks-thread-browser",
+                                      "type": "column",
+                                      "children": [
+                                        {
+                                          "id": "tasks-thread-browser-host",
+                                          "type": "block",
+                                          "content": {
+                                            "mod": "task-browser"
+                                          },
+                                          "hidden": true
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "background": "background",
+                              "border": {
+                                "width": 1,
+                                "color": "border"
+                              },
+                              "radius": 10,
+                              "resizable": false
+                            }
+                          ]
+                        },
+                        {
+                          "id": "artifacts",
+                          "type": "stack",
+                          "active": "artifacts-list",
+                          "children": [
+                            {
+                              "id": "artifacts-list",
+                              "type": "block",
+                              "content": {
+                                "mod": "artifacts"
+                              }
+                            },
+                            {
+                              "id": "artifacts-view",
+                              "type": "column",
+                              "children": [
+                                {
+                                  "id": "artifacts-view-head",
+                                  "type": "block",
+                                  "content": {
+                                    "mod": "artifacts",
+                                    "props": {
+                                      "head": true
+                                    }
+                                  },
+                                  "size": {
+                                    "px": 42
+                                  }
+                                },
+                                {
+                                  "id": "artifacts-view-body",
+                                  "type": "block",
+                                  "content": {
+                                    "mod": "help"
+                                  }
+                                }
+                              ],
+                              "background": "background",
+                              "border": {
+                                "width": 1,
+                                "color": "border"
+                              },
+                              "radius": 10,
+                              "resizable": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
-              }
+              ]
             }
           ]
         }

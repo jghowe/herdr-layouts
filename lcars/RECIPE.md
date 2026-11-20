@@ -53,9 +53,10 @@ Each agent status shows the same colour in the crew strip, the tab pill and the 
 
 **Clicks:**
 - A space slab: `space.select {id}`.
-- A crew row: `agent.focus {terminal}`.
+- A crew row: `pane.focus {pane}`, which shows the agent's tab even in another space; an agent without a pane is `terminal.peek {terminal}`. (`agent.focus` only works in a layout with an `{ "agent": "focused" }` block.)
 - A tab pill: `tab.select {id}`.
 - `+ NEW SPACE`: with no other machines, `space.new` here. With machines added (`hc machine add`), a popup of LCARS slabs, `NEW SPACE ON` then `THIS COMPUTER` and one per machine. Picking one runs `space.new {machine}`. A machine that isn't ready shows grey with its state and can't be picked.
+- `FILES`, `CHANGES`, `TASKS`, `ARTIFACTS` pills before the `+`: show Herdr's side panel on that view, or hide it when it is already showing (`layout.select {stack: "panel-body", child}` then `layout.show {id: "panel"}`, or `layout.hide {id: "panel"}`). The panel is the layout's `panel` column to the right of the terminals, hidden at first, 368px wide, with one child per view in its `panel-body` stack; the shown view is remembered per space. Pills show only for panels Herdr has on (`workspace.panels`, and Artifacts unless its add-on is off). There is no unread count on `TASKS`: Herdr's Tasks inbox runs in its own tab bar, which this layout replaces.
 - `+` after the tabs: Herdr's new menu (terminal, each installed agent, new space, new worktree, open worktree).
 - `MENU`: Herdr's global menu (new space, keybinds, themes).
 - The gear: Herdr's settings (`app.settings`, the same as `⌘ ,`). It stops its own press so the elbow's menu does not open as well.
